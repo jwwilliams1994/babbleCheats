@@ -296,6 +296,15 @@ def check_tan(img):
     return perc
 
 
+def check_hand_color(img):
+    col = (77, 111, 111)
+    im_iter = img.getdata()
+    count = 0
+    count = sum(map(lambda i: dist(i[0], i[1], i[2], col), im_iter))
+    perc = round(count / (img.size[0] * img.size[1]), 3)
+    return perc
+
+
 def get_letter(img, debug=False):  # img needs to be normalized first
     im_arr = list(map(lambda i: Image.open(let_dir + i).convert("L"), letter_files))
     # im_arr = [Image.open(let_dir + i).convert("L") for i in letter_files]
@@ -305,8 +314,34 @@ def get_letter(img, debug=False):  # img needs to be normalized first
 
 def get_hand(img, debug=False):
     w, h = img.size
-    start = (round(.307 * w), round(.915 * h))
-    end = (round(.69 * w), round(.964 * h))
+    il = img.load()
+    col = (77, 111, 111)
+    x = round(w / 2)
+    st = 0
+    en = 0
+    for y in range(h):
+        r, g, b = il[x, y]
+        if dist(r, g, b, col):
+            if st == 0:
+                st = y
+            en = y
+    yrat1 = (st / h) + 0.03
+    yrat2 = (en / h) - 0.03
+    # print(st, en)
+    midy = ((h * yrat2) + (h * yrat1)) / 2
+    st = 0
+    en = 0
+    for x in range(w):
+        r, g, b = il[x, midy]
+        if dist(r, g, b, col):
+            if st == 0:
+                st = x
+            en = x
+    xrat1 = (st / w) + 0.01
+    xrat2 = (en / w) - 0.014
+    # print(st, en)
+    start = (round(xrat1 * w), round(yrat1 * h))
+    end = (round(xrat2 * w), round(yrat2 * h))
     img = img.crop((*start, *end)).convert("L")  # crops out the area the hand tiles exist in, no reason to bother looking elsewhere
     # img.save('hand.png')
     img = Image.eval(img, (lambda x: (x < 20) * 255))
@@ -584,6 +619,7 @@ def squareit(inp, img, cube, im_arr):
 def get_board(xarr, yarr, img):
     pool = ThreadPool(processes=12)
     hand_result = pool.apply_async(get_hand, [img])
+    # img = np.asarray(img)
     let_dir = "letters/"
     # letter_files = os.listdir(os.getcwd() + "/" + let_dir)
     # im_arr = [Image.open(let_dir + i).convert("L") for i in letter_files]
@@ -612,6 +648,7 @@ def get_board(xarr, yarr, img):
         for ey in yarr:
             yp = yarr.index(ey)
             imc = img.crop((ex, ey, ex + cube, ey + cube))
+            # imc = cv.rectangle(img, (ex, ey), (ex + cube, ey + cube))
             # im = imc.convert("L")
             w, h = imc.size
             area = (round(.24 * w), round(.2 * h), round(.85 * w), round(.8 * h))

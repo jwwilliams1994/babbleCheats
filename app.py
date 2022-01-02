@@ -1,3 +1,5 @@
+import nltk
+# nltk.download('wordnet')
 from cheating import *  # lazy import so I can write cleaner code here
 import pyautogui, pygetwindow
 import mss
@@ -29,6 +31,7 @@ def dostuff():
     for z in z1:
         if "To the king goes his crown" in z:
             wind = z
+            break
             # print("yes")
 
     my = pygetwindow.getWindowsWithTitle(wind)[0]
@@ -39,6 +42,7 @@ def dostuff():
 
     imag = sct.grab(area)
     test = Image.frombytes("RGB", (imag.size[0], imag.size[1]), imag.rgb)
+    test.save("name.png")
     var = 1200 / test.size[1]
     img = test
     if var > 1:
