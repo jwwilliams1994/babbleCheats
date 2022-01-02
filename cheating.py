@@ -7,7 +7,6 @@ import cv2 as cv
 from mss import mss
 from PIL import Image, ImageFilter, ImageChops, ImageOps
 import colorsys
-import matplotlib.pyplot as plt
 import os
 import random
 from skimage.metrics import structural_similarity as ssim
@@ -92,32 +91,6 @@ def solve2(inp):
     while offset > m:
         offset -= m
     return m, offset
-
-
-def plotty(x_arr, y_arr, n):
-    nx_arr = [*(a[0] for a in x_arr)]
-    x_arr = [*(a[1] for a in x_arr)]
-
-    ny_arr = [*(a[0] for a in y_arr)]
-    y_arr = [*(a[1] for a in y_arr)]
-
-    x_lim = np.percentile(nx_arr, n)
-    y_lim = np.percentile(ny_arr, n)
-
-    x_lim = [x_lim for a in x_arr]
-    y_lim = [y_lim for a in y_arr]
-
-    f = plt.figure()
-    t = f.add_subplot()
-    t.plot(x_arr, nx_arr)
-    tl = t.twinx()
-    tl.plot(x_arr, x_lim)
-    ff = plt.figure()
-    tt = ff.add_subplot()
-    tt.plot(y_arr, ny_arr)
-    ttl = tt.twinx()
-    ttl.plot(y_arr, y_lim)
-    plt.show()
 
 
 def get_grid(inp, val=1):
